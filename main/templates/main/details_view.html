@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Telegram</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <style>
+        /* CSS styles go here */
+        body {
+            font-family: Arial, sans-serif;
+            margin-bottom: 60px; /* Убираем отступы по умолчанию */
+            padding: 0;
+            color: var(--tg-theme-text-color);
+            background: var(--tg-theme-section-bg-color); /* Добавляем background color на всю страницу */
+        }
+
+        .header-container {
+            display: flex;
+            align-items: center;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background: var(--tg-theme-section-bg-color);
+            width: calc(100% - 15px); /* Ширина блока минус отступы слева и справа */
+            margin: 8px auto; /* Центрируем блок и добавляем отступы */
+        }
+
+        .sneaker-block {
+            width: 100%;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .photo {
+            width: 100%; /* Фиксированная ширина изображения */
+            height: 100%; /* Позволяет изображению сохранять пропорции */
+        }
+
+        .name {
+            font-size: 24px; /* Размер названия */
+            margin-top: 20px; /* Отступ от фото */
+        }
+
+        .description {
+            margin-top: 10px; /* Отступ от названия */
+        }
+
+        .post-description {
+            margin-top: 10px; /* Отступ от описания */
+        }
+
+        .order-button-container {
+            position: fixed; /* Фиксируем кнопку и цену */
+            bottom: 1px; /* Отступ от нижнего края */
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Равномерно распределяем пространство между элементами */
+            width: 100%;
+            padding: 0 10px; /* Добавляем отступы по бокам */
+            background: var(--tg-theme-section-bg-color);
+        }
+
+        .order-button {
+            margin-top: 10px; /* Отступ между кнопкой и ценой */
+            border: 0;
+            background: var(--tg-theme-section-bg-color);
+            color: var(--tg-theme-button-text-color);
+            box-shadow: 1px 1px 3px var(--tg-theme-subtitle-text-color);
+            border-radius: 10px;
+            height: 35px;
+            width: 80%;
+        }
+
+        .price {
+            font-weight: bold; /* Выделение цены жирным */
+            margin-top: 10px; /* Отступ от кнопки */
+        }
+
+        .content {
+            margin-left: 7.5px;
+            
+        }
+        .size-buttons-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .size-buttons-container span {
+            margin-right: 10px;
+        }
+
+        .size-button {
+            margin-right: 5px;
+            background-color: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .size-button:hover {
+            background-color: var(--tg-theme-destructive-text-color);
+        }
+            .cart-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+
+    .cart-button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+    }
+
+    .quantity-button {
+        width: 30px;
+        height: 30px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        margin: 0 5px;
+        cursor: pointer;
+    }
+    </style>
+</head>
+
+<body>
+    <div style="position: relative;">
+        <img src="{{ sneaker.image.url }}" alt="Sneakers" class="photo" style="width: 100%; height: auto;">
+        <button class="btn btn-primary" onclick="goBack()" style="position: absolute; top: 10px; left: 7.5px; z-index: 999;"><</button>
+    </div>
+
+    <div class="content">
+        <h1 style="font-size: 35px;" class="name"><strong>{{ sneaker.name }}</strong></h1>
+        <p style="font-size: 20px;" class="description">{{ sneaker.description }}</p>
+        <hr>
+        <div class="size-buttons-container">
+            <span>Размеры:</span>
+        </div>
+        <hr>
+        <p style="font-size: 20px;" class="post-description">{{ sneaker.post_description }}</p>
+        <hr>
+    </div>
+
+    <div class="order-button-container">
+        <p class="price">{{ sneaker.price }}</p>
+        <div style="flex-grow: 1;"></div> <!-- Пустой блок, чтобы разделить пространство -->
+        <button class="quantity-button" onclick="decreaseQuantity()">-</button>
+        <span id="quantity">0</span>
+        <button class="quantity-button" onclick="increaseQuantity()">+</button>
+        
+    </div>
+
+    <div id="cart" class="cart-container" style="display: none;">
+        <!-- Код для корзины -->
+    </div>
+
+    <button class="cart-button" onclick="openCartPage()">Посмотреть корзину</button>
+
+    <script>
+        function addToCart(productId) {
+            fetch('/add-to-cart/' + productId + '/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    quantity: 1  // Здесь можно указать нужное количество товара для добавления
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Обработка ответа от сервера, например, обновление UI корзины или вывод сообщения об успешном добавлении товара
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+    <script>
+        function openCartPage() {
+            // Перенаправляем пользователя на страницу корзины
+            window.location.href = 'cart/'; // Замените '/cart' на путь к вашей странице корзины
+        }
+    </script>
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var sizes = "{{ sneaker.sizes }}".split(',').map(function(size) {
+                return size.trim();
+            });
+
+            var sizeButtonsContainer = document.querySelector('.size-buttons-container');
+
+            sizes.forEach(function(size) {
+                var button = document.createElement('button');
+                button.classList.add('size-button');
+                button.textContent = size;
+                sizeButtonsContainer.appendChild(button);
+            });
+        });
+    </script>
+    <script>
+        // Обработчики событий и другая логика JavaScript
+        let quantity = 0;
+
+        function showCart() {
+            // Здесь может быть ваша логика для открытия корзины
+            alert('Открываем корзину!');
+        }
+
+        function increaseQuantity() {
+            addToCart({{ sneaker.id }}, 1);
+            quantity++;
+            updateQuantityDisplay();
+        }
+
+        function decreaseQuantity() {
+            if (quantity > 0) {
+                quantity--;
+                updateQuantityDisplay();
+            }
+        }
+
+        function updateQuantityDisplay() {
+            document.getElementById('quantity').textContent = quantity;
+        }
+с
+        function updateCart(sneakerId, quantity) {
+            fetch('/add-to-cart/' + sneakerId + '/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    quantity: quantity
+                })
+            })
+            .then(response => {
+                // Обработка ответа, если необходимо
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Проверяем, начинается ли куки с нужного имени
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    // Возвращаем значение куки
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    </script>
+</body>
+</html>
